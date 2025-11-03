@@ -6,6 +6,10 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
+client = OpenAI(
+    api_key=os.getenv("DEEPSEEK_API_KEY"),
+    base_url="https://api.deepseek.com/v1"
+)
 # --- Setup ---
 app = Flask(__name__)
 CORS(app)
@@ -57,14 +61,30 @@ def predict_soh():
         return jsonify({"error": str(e)}), 500
 
 
-# --- Chat Endpoint (now uses OpenAI API) ---
+# --- Chat Endpoint (uses OpenAI + local model) ---
+latest_soh_value = None
+latest_status = None
+
 @app.route("/chat", methods=["POST"])
 def chat():
+    global latest_soh_value, latest_status
     try:
         data = request.get_json()
-        question = data.get("question", "")
-        mode = data.get("mode", "general")
+        question = data.get("question", "").lower()
 
+        # 1️⃣ Local query: user asks for battery SOH
+        if "check battery soh" in question:
+            if latest_soh_value is None:
+                return jsonify({
+                    "answer": "No SOH prediction found yet. Please run the SOH prediction first.",
+                    "source": "model"
+                })
+            return jsonify({
+                "answer": f"The predicted SOH is {latest_soh_value:.2f}, which indicates the battery is {latest_status}.",
+                "source": "model"
+            })
+
+        # 2️⃣ General queries → send to GPT
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
@@ -74,9 +94,13 @@ def chat():
         )
 
         answer = response.choices[0].message.content
-        return jsonify({"answer": answer})
+        return jsonify({
+            "answer": answer,
+            "source": "chatgpt"
+        })
 
     except Exception as e:
+        print("❌ Error in /chat:", e)
         return jsonify({"error": str(e)}), 500
 
 
