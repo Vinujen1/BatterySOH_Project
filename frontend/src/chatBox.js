@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { API_URL } from "./config";
 
 export default function ChatBox() {
   const [input, setInput] = useState("");
@@ -12,7 +13,7 @@ export default function ChatBox() {
     setMessages(newMessages);
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/chat", { question: input });
+      const res = await axios.post(`${API_URL}/chat`, { question: input });
       const source = res.data.source || "chatgpt";
       const label =
         source === "model" ? "📊 Model" : source === "chatgpt" ? "🤖 ChatGPT" : "🧩 System";

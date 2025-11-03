@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./index.css";
+import { API_URL } from "./config";
 
 function App() {
   const [uValues, setUValues] = useState(Array(21).fill(3.5));
@@ -14,7 +15,7 @@ function App() {
 
   const predictSOH = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/predict", { u_values: uValues });
+      const res = await axios.post(`${API_URL}/predict`, { u_values: uValues });
       setSoh(res.data.soh.toFixed(3));
       setStatus(res.data.status);
       setMetrics(res.data.metrics);
@@ -26,8 +27,8 @@ function App() {
 
   const askChat = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/chat", { question, mode });
-      setAnswer(res.data.answer);
+    const res = await axios.post(`${API_URL}/chat`, { question, mode });      
+    setAnswer(res.data.answer);
     } catch (err) {
       console.error(err);
     }

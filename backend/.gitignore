@@ -1,0 +1,28 @@
+# Node modules
+frontend/node_modules/
+frontend/build/
+
+# Python environment files
+backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Flask environment & cache
+instance/
+.env
+*.env
+*.pkl
+
+# Logs & temp
+*.log
+.DS_Store
+
+# AWS/IDE
+.elasticbeanstalk/*
+!.elasticbeanstalk/config.yml
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
